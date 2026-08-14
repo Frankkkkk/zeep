@@ -54,8 +54,15 @@ impl<'n> TryFromNode<'n> for Field {
         // check if this is an any type
         if node.tag_name().name() == "any" {
             return Ok(Field {
-                xml_name: "body".to_string(),
-                rust_name: "body".to_string(),
+                // NOTE: this must not be "body"/"Body" -- a complexType can
+                // perfectly well have both a `<xs:element ref="tns:Body"/>` (or
+                // any other field literally named "body") *and* an `<xs:any/>`
+                // wildcard in the same sequence (e.g. the generic SOAP 1.1
+                // envelope's `Envelope` complexType has both `Body` and a
+                // trailing `xs:any`), which would otherwise generate two
+                // struct fields with the same Rust identifier.
+                xml_name: "any_content".to_string(),
+                rust_name: "any_content".to_string(),
                 rust_type: RustFieldType::String,
                 is_optional: true,
                 is_vec: false,
@@ -339,6 +346,24 @@ pub fn rename_keywords(field_name: &str) -> &str {
 mod tests {
     use super::*;
     use crate::model::field::{Field, RustFieldType};
+
+    #[test]
+    fn any_wildcard_field_does_not_collide_with_a_body_field() {
+        // Mirrors the generic SOAP 1.1 `Envelope` complexType, which has both an
+        // element named "Body" and a trailing `xs:any` wildcard in the same
+        // sequence -- these must not generate the same Rust field name.
+        const ANY_XML: &str = r#"<xs:any xmlns:xs="http://www.w3.org/2001/XMLSchema" namespace="other" minOccurs="0" maxOccurs="unbounded" processContents="lax"/>"#;
+        let doc = roxmltree::Document::parse(ANY_XML).unwrap();
+        let node = doc.root_element();
+        let mut rust_doc = RustDocument::init(&doc);
+        let any_field = Field::try_from_node(node, &mut rust_doc).unwrap();
+
+        assert_ne!(
+            any_field.rust_name, "body",
+            "the `xs:any` wildcard field must not be named `body`, since a sibling element literally named `Body` would collide with it"
+        );
+        assert!(any_field.is_any);
+    }
 
     #[test]
     fn can_parse_field_from_node() {
