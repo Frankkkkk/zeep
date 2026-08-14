@@ -280,7 +280,9 @@ pub fn as_rust_type(node_type: &str, doc: &RustDocument) -> RustFieldType {
     match node_type {
         "byte" => RustFieldType::I8,
         "string" | "normalizedString" | "base64Binary" | "hexBinary" | "anyURI" | "date" | "dateTime" | "time"
-        | "language" | "duration" => RustFieldType::String,
+        | "language" | "duration" | "gYear" | "gYearMonth" | "gMonth" | "gMonthDay" | "gDay" | "QName" | "NOTATION" => {
+            RustFieldType::String
+        }
         "decimal" | "double" => RustFieldType::F64,
         "float" => RustFieldType::F32,
         "integer" | "int" | "negativeInteger" | "nonNegativeInteger" | "nonPositiveInteger" | "positiveInteger" => {
@@ -346,6 +348,19 @@ pub fn rename_keywords(field_name: &str) -> &str {
 mod tests {
     use super::*;
     use crate::model::field::{Field, RustFieldType};
+
+    #[test]
+    fn xsd_temporal_and_qname_builtins_map_to_string() {
+        let doc = roxmltree::Document::parse("<root/>").unwrap();
+        let rust_doc = RustDocument::init(&doc);
+        for xsd_type in ["gYear", "gYearMonth", "gMonth", "gMonthDay", "gDay", "QName", "NOTATION"] {
+            assert_eq!(
+                as_rust_type(xsd_type, &rust_doc),
+                RustFieldType::String,
+                "xs:{xsd_type} should map to RustFieldType::String"
+            );
+        }
+    }
 
     #[test]
     fn any_wildcard_field_does_not_collide_with_a_body_field() {
