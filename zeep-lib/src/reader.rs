@@ -275,6 +275,11 @@ impl XmlReader {
         // Switch to the schema's target namespace if it has one
         if let Some(target_namespace) = node.attribute("targetNamespace") {
             doc.switch_to_target_namespace(target_namespace);
+            doc.set_form_defaults(
+                target_namespace,
+                node.attribute("elementFormDefault") == Some("qualified"),
+                node.attribute("attributeFormDefault") == Some("qualified"),
+            );
         }
 
         for child in node.children() {
