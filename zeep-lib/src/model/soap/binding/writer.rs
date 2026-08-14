@@ -149,8 +149,12 @@ where
         .rust_type
         .rust_type_name()
         .expect("rust type name not found");
-    let body_field_name = as_field_name(&to_snake_case(&body));
     let xml_name = soap_operation.body.rust_type.xml_name().expect("xml_name not found");
+    // The Rust field identifier must always be derived from the XML element name
+    // (e.g. "rechercherPoint" -> "rechercher_point"), independent of whatever Rust
+    // type it resolves to (e.g. "RechercherPointType") -- those can differ when the
+    // element references a separately-named complexType.
+    let body_field_name = as_field_name(&to_snake_case(xml_name));
 
     writeln!(writer, "#[derive(Debug, Default, YaSerialize, YaDeserialize)]")?;
 
@@ -205,4 +209,52 @@ where
     write_check_restrictions_footer(writer)?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::write_soap_operation;
+    use crate::model::{
+        field::{OtherRustType, RustFieldType},
+        node::RustNode,
+        soap::binding::SoapEnvelope,
+        structures::{
+            RustType,
+            element::{ElementProps, ElementType},
+        },
+    };
+    use std::rc::Rc;
+
+    #[test]
+    fn body_field_name_is_derived_from_xml_name_not_resolved_type_name() {
+        // "rechercherPoint" element declared with `type="ope:RechercherPointType"`:
+        // the field NAME must stay derived from the element name
+        // ("rechercher_point"), even though the field TYPE resolves to a
+        // differently-cased/named type ("RechercherPointType").
+        let body = Rc::new(RustNode {
+            rust_type: RustType::Element(Box::new(ElementProps {
+                xml_name: "rechercherPoint".to_string(),
+                element_type: ElementType::RustType(RustFieldType::Other(OtherRustType::new(
+                    "RechercherPointType".to_string(),
+                    Some("mod_v20".to_string()),
+                ))),
+            })),
+            in_namespace: None,
+        });
+
+        let soap_operation = SoapEnvelope { headers: vec![], body };
+
+        let mut writer = Vec::new();
+        write_soap_operation(&mut writer, "RechercherPointInputEnvelope", &soap_operation, &[]).unwrap();
+        let output = String::from_utf8(writer).unwrap();
+
+        assert!(
+            output.contains("pub rechercher_point: RechercherPointType,"),
+            "expected field name derived from the xml element name, got: {output}"
+        );
+        assert!(
+            !output.contains("rechercher_point_type"),
+            "field name must not be derived from the resolved type name, got: {output}"
+        );
+    }
 }
