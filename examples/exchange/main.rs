@@ -1,6 +1,6 @@
 use crate::services::{
     GetUserAvailabilityInputEnvelope, GetUserAvailabilityInputEnvelopeBody, GetUserAvailabilityInputEnvelopeHeader,
-    mod_mes::GetUserAvailabilityRequest,
+    mod_mes::GetUserAvailabilityRequestType,
     mod_typ::{
         ArrayOfMailboxData, EmailAddress, ExchangeVersionType, MailboxData, MeetingAttendeeType, RequestServerVersion,
     },
@@ -24,7 +24,7 @@ async fn main() {
             ..Default::default()
         },
         body: GetUserAvailabilityInputEnvelopeBody {
-            get_user_availability_request: GetUserAvailabilityRequest {
+            get_user_availability_request_type: GetUserAvailabilityRequestType {
                 mailbox_data_array: ArrayOfMailboxData {
                     mailbox_data: vec![MailboxData {
                         email: EmailAddress {
