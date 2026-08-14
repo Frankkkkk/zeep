@@ -24,7 +24,7 @@ async fn main() {
             ..Default::default()
         },
         body: GetUserAvailabilityInputEnvelopeBody {
-            get_user_availability_request_type: GetUserAvailabilityRequestType {
+            get_user_availability_request: GetUserAvailabilityRequestType {
                 mailbox_data_array: ArrayOfMailboxData {
                     mailbox_data: vec![MailboxData {
                         email: EmailAddress {
