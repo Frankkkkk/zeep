@@ -74,53 +74,6 @@ pub mod mod_tem {
     }
 }
 
-/* CelsiusToFahrenheit */
-
-#[derive(Debug, Default, YaSerialize, YaDeserialize)]
-#[yaserde(prefix = "tem", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
-pub struct CelsiusToFahrenheitInputEnvelopeBody {
-    #[yaserde(prefix = "tem", rename = "CelsiusToFahrenheitRequest")]
-    pub celsius_to_fahrenheit_request: mod_tem::CelsiusToFahrenheitRequest,
-}
-impl restrictions::CheckRestrictions for CelsiusToFahrenheitInputEnvelopeBody {
-    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
-        self.celsius_to_fahrenheit_request.check_restrictions(restrictions)
-    }
-}
-#[derive(Debug, Default, YaSerialize, YaDeserialize)]
-#[yaserde(prefix = "soapenv", rename = "Envelope", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
-pub struct CelsiusToFahrenheitInputEnvelope {
-    #[yaserde(prefix = "soapenv", rename = "Body")]
-    pub body: CelsiusToFahrenheitInputEnvelopeBody,
-}
-impl restrictions::CheckRestrictions for CelsiusToFahrenheitInputEnvelope {
-    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
-        self.body.check_restrictions(restrictions)
-    }
-}
-#[derive(Debug, Default, YaSerialize, YaDeserialize)]
-#[yaserde(prefix = "tem", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
-pub struct CelsiusToFahrenheitOutputEnvelopeBody {
-    #[yaserde(prefix = "tem", rename = "CelsiusToFahrenheitResponse")]
-    pub celsius_to_fahrenheit_response: mod_tem::CelsiusToFahrenheitResponse,
-}
-impl restrictions::CheckRestrictions for CelsiusToFahrenheitOutputEnvelopeBody {
-    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
-        self.celsius_to_fahrenheit_response.check_restrictions(restrictions)
-    }
-}
-#[derive(Debug, Default, YaSerialize, YaDeserialize)]
-#[yaserde(prefix = "soapenv", rename = "Envelope", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
-pub struct CelsiusToFahrenheitOutputEnvelope {
-    #[yaserde(prefix = "soapenv", rename = "Body")]
-    pub body: CelsiusToFahrenheitOutputEnvelopeBody,
-}
-impl restrictions::CheckRestrictions for CelsiusToFahrenheitOutputEnvelope {
-    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
-        self.body.check_restrictions(restrictions)
-    }
-}
-
 /* FahrenheitToCelsius */
 
 #[derive(Debug, Default, YaSerialize, YaDeserialize)]
@@ -167,6 +120,53 @@ impl restrictions::CheckRestrictions for FahrenheitToCelsiusOutputEnvelope {
         self.body.check_restrictions(restrictions)
     }
 }
+
+/* CelsiusToFahrenheit */
+
+#[derive(Debug, Default, YaSerialize, YaDeserialize)]
+#[yaserde(prefix = "tem", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
+pub struct CelsiusToFahrenheitInputEnvelopeBody {
+    #[yaserde(prefix = "tem", rename = "CelsiusToFahrenheitRequest")]
+    pub celsius_to_fahrenheit_request: mod_tem::CelsiusToFahrenheitRequest,
+}
+impl restrictions::CheckRestrictions for CelsiusToFahrenheitInputEnvelopeBody {
+    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
+        self.celsius_to_fahrenheit_request.check_restrictions(restrictions)
+    }
+}
+#[derive(Debug, Default, YaSerialize, YaDeserialize)]
+#[yaserde(prefix = "soapenv", rename = "Envelope", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
+pub struct CelsiusToFahrenheitInputEnvelope {
+    #[yaserde(prefix = "soapenv", rename = "Body")]
+    pub body: CelsiusToFahrenheitInputEnvelopeBody,
+}
+impl restrictions::CheckRestrictions for CelsiusToFahrenheitInputEnvelope {
+    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
+        self.body.check_restrictions(restrictions)
+    }
+}
+#[derive(Debug, Default, YaSerialize, YaDeserialize)]
+#[yaserde(prefix = "tem", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
+pub struct CelsiusToFahrenheitOutputEnvelopeBody {
+    #[yaserde(prefix = "tem", rename = "CelsiusToFahrenheitResponse")]
+    pub celsius_to_fahrenheit_response: mod_tem::CelsiusToFahrenheitResponse,
+}
+impl restrictions::CheckRestrictions for CelsiusToFahrenheitOutputEnvelopeBody {
+    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
+        self.celsius_to_fahrenheit_response.check_restrictions(restrictions)
+    }
+}
+#[derive(Debug, Default, YaSerialize, YaDeserialize)]
+#[yaserde(prefix = "soapenv", rename = "Envelope", namespaces = { "soapenv" = "http://schemas.xmlsoap.org/soap/envelope/", "tem" = "http://learnwebservices.com/services/tempconverter" })]
+pub struct CelsiusToFahrenheitOutputEnvelope {
+    #[yaserde(prefix = "soapenv", rename = "Body")]
+    pub body: CelsiusToFahrenheitOutputEnvelopeBody,
+}
+impl restrictions::CheckRestrictions for CelsiusToFahrenheitOutputEnvelope {
+    fn check_restrictions(&self, restrictions: Option<Rc<restrictions::Restrictions>>) -> error::SoapResult<()> {
+        self.body.check_restrictions(restrictions)
+    }
+}
 pub struct TempConverterEndpointService {
     pub client: reqwest::Client,
     pub location: String,
@@ -204,18 +204,18 @@ impl TempConverterEndpointService {
         self
     }
 
-    pub async fn celsius_to_fahrenheit(
-        &self,
-        req: CelsiusToFahrenheitInputEnvelope,
-    ) -> error::SoapResult<CelsiusToFahrenheitOutputEnvelope> {
-        let credentials = self.credentials.as_ref().map(|(u, p)| (u.as_str(), p.as_str()));
-        helpers::send_soap_request_using_client(&self.client, &self.location, credentials, req).await
-    }
-
     pub async fn fahrenheit_to_celsius(
         &self,
         req: FahrenheitToCelsiusInputEnvelope,
     ) -> error::SoapResult<FahrenheitToCelsiusOutputEnvelope> {
+        let credentials = self.credentials.as_ref().map(|(u, p)| (u.as_str(), p.as_str()));
+        helpers::send_soap_request_using_client(&self.client, &self.location, credentials, req).await
+    }
+
+    pub async fn celsius_to_fahrenheit(
+        &self,
+        req: CelsiusToFahrenheitInputEnvelope,
+    ) -> error::SoapResult<CelsiusToFahrenheitOutputEnvelope> {
         let credentials = self.credentials.as_ref().map(|(u, p)| (u.as_str(), p.as_str()));
         helpers::send_soap_request_using_client(&self.client, &self.location, credentials, req).await
     }
