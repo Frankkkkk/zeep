@@ -50,8 +50,21 @@ impl<'n> TryFromNode<'n> for ComplexProps {
 
             if n.tag_name().name() == "attribute" {
                 // read it as a field and add it to the fields
-                let field = Field::try_from_node(n, doc)?;
-                result.fields.push(field);
+                match Field::try_from_node(n, doc) {
+                    Ok(field) => result.fields.push(field),
+                    // A `ref="..."` attribute can point at a global attribute
+                    // declaration that lives in a schema document zeep's
+                    // cross-file node lookup can't reach (e.g. common SOAP
+                    // infrastructure attributes like `mustUnderstand` /
+                    // `encodingStyle`, declared in the SOAP envelope schema and
+                    // referenced by application-level header types). Such
+                    // attributes carry no meaningful application data, so skip
+                    // just this one field instead of dropping the whole
+                    // complex type (and therefore every field that *was*
+                    // resolved) on the floor.
+                    Err(_) if n.attribute("ref").is_some() => {}
+                    Err(e) => return Err(e),
+                }
             }
         }
 
@@ -205,6 +218,35 @@ mod tests {
         let doc = roxmltree::Document::parse(XML).unwrap();
         let rust_node = parse_from_xml::<ComplexProps>(&doc);
         assert_eq!(rust_node.xml_name, "SearchDiagnosticsType");
+    }
+
+    #[test]
+    fn unresolvable_attribute_ref_is_skipped_without_dropping_the_whole_type() {
+        // Mirrors ENEDIS's `tec:EnteteType`, which has a `<xs:attribute ref="tns:mustUnderstand"/>`
+        // pointing at a global attribute declared in the (unreachable, in this
+        // test) SOAP envelope schema. Previously, failing to resolve this single
+        // attribute caused the *entire* complexType (including its real,
+        // resolvable sequence fields) to be dropped.
+        const XML: &str = r#"
+<xs:complexType name="EnteteType" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.xmlsoap.org/soap/envelope/">
+    <xs:sequence>
+      <xs:element name="version" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="infoFonctionnelles" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute use="optional" ref="tns:mustUnderstand"/>
+</xs:complexType>
+"#;
+
+        let doc = roxmltree::Document::parse(XML).unwrap();
+        let rust_node = parse_from_xml::<ComplexProps>(&doc);
+        assert_eq!(rust_node.xml_name, "EnteteType");
+        assert_eq!(
+            rust_node.fields.len(),
+            2,
+            "the resolvable sequence fields must survive the unresolvable attribute ref"
+        );
+        assert_eq!(rust_node.fields[0].xml_name, "version");
+        assert_eq!(rust_node.fields[1].xml_name, "infoFonctionnelles");
     }
 
     #[test]
